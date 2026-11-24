@@ -6,8 +6,8 @@
 <main class="oa-main oa-with-side">
     <aside class="oa-side" aria-label="카테고리">
         <h2>카테고리</h2>
-        <a th:href="@{/(q=${q},sort=${sort},open=${open})}" th:classappend="${category == null} ? 'on'">전체</a>
-        <a th:each="c : ${categories}" th:href="@{/(category=${c.id},q=${q},sort=${sort},open=${open})}"
+        <a th:href="@{/home(q=${q},sort=${sort},open=${open})}" th:classappend="${category == null} ? 'on'">전체</a>
+        <a th:each="c : ${categories}" th:href="@{/home(category=${c.id},q=${q},sort=${sort},open=${open})}"
            th:classappend="${c.id == category} ? 'on'" th:text="${c.label}">카테고리</a>
     </aside>
 
@@ -28,7 +28,7 @@
                 <small th:if="${q}" th:text="'“' + ${q} + '” 검색 결과'"></small>
                 <small th:text="${page.totalElements} + '개'">0개</small>
             </h2>
-            <form th:action="@{/}" method="get" class="oa-filters">
+            <form th:action="@{/home}" method="get" class="oa-filters">
                 <input type="hidden" name="category" th:value="${category}">
                 <input type="hidden" name="q" th:value="${q}">
                 <label>정렬
@@ -50,13 +50,13 @@
         </div>
         <div class="oa-empty" th:if="${page.empty}">
             <p>조건에 맞는 경매가 없습니다.</p>
-            <a class="oa-btn oa-btn-line" th:href="@{/}">전체 보기</a>
+            <a class="oa-btn oa-btn-line" th:href="@{/home}">전체 보기</a>
         </div>
 
         <nav class="oa-pager" th:if="${page.totalPages > 1}">
-            <a th:if="${page.hasPrevious()}" th:href="@{/(category=${category},q=${q},sort=${sort},open=${open},page=${page.number - 1})}">이전</a>
+            <a th:if="${page.hasPrevious()}" th:href="@{/home(category=${category},q=${q},sort=${sort},open=${open},page=${page.number - 1})}">이전</a>
             <span th:text="${page.number + 1} + ' / ' + ${page.totalPages}">1 / 1</span>
-            <a th:if="${page.hasNext()}" th:href="@{/(category=${category},q=${q},sort=${sort},open=${open},page=${page.number + 1})}">다음</a>
+            <a th:if="${page.hasNext()}" th:href="@{/home(category=${category},q=${q},sort=${sort},open=${open},page=${page.number + 1})}">다음</a>
         </nav>
     </section>
 </main>

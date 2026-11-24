@@ -10,13 +10,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/** 메인 · 목록: 카테고리·검색·정렬·진행 중 필터 */
+/** 첫 화면(소개) · 경매 목록(/home): 카테고리·검색·정렬·진행 중 필터 */
 @Controller
 @RequiredArgsConstructor
 public class HomeController {
     private final AuctionService auctionService;
 
+    /** 원래 온에어 마켓의 첫 화면(소개 페이지) */
     @GetMapping("/")
+    public String landing() {
+        return "landing";
+    }
+
+    @GetMapping("/home")
     public String home(@RequestParam(required = false) String category,
                        @RequestParam(required = false) String q,
                        @RequestParam(defaultValue = "latest") String sort,

@@ -12,11 +12,12 @@
 <header th:fragment="header" class="oa-header">
     <div class="oa-header-inner">
         <a class="oa-logo" th:href="@{/}"><span class="oa-dot"></span>온에어마켓</a>
-        <form class="oa-search" th:action="@{/}" method="get" role="search">
+        <form class="oa-search" th:action="@{/home}" method="get" role="search">
             <input type="search" name="q" th:value="${q}" placeholder="상품명으로 검색" aria-label="상품 검색">
             <button type="submit">검색</button>
         </form>
         <nav class="oa-nav">
+            <a class="oa-link" th:href="@{/home}">경매 둘러보기</a>
             <a class="oa-btn oa-btn-coral" th:href="@{/sell}">판매하기</a>
             <th:block th:if="${me == null}">
                 <a class="oa-link" th:href="@{/login}">로그인</a>

@@ -5,7 +5,7 @@
 <header th:replace="~{fragments/layout :: header}"></header>
 <main class="oa-main">
     <div th:replace="~{fragments/layout :: flash}"></div>
-    <p class="oa-eyebrow"><a th:href="@{/}">경매</a> › <a th:href="@{/(category=${a.categoryId})}" th:text="${a.category}">카테고리</a></p>
+    <p class="oa-eyebrow"><a th:href="@{/home}">경매</a> › <a th:href="@{/home(category=${a.categoryId})}" th:text="${a.category}">카테고리</a></p>
 
     <div class="oa-detail">
         <section class="oa-media">
