@@ -19,10 +19,12 @@ public interface TimedAuctionRepository extends JpaRepository<TimedAuction, Stri
               and (:categoryId is null or a.categoryId = :categoryId)
               and (:keyword is null or lower(a.title) like lower(concat('%', :keyword, '%')))
               and (:openOnly = false or (a.startsAt <= :now and a.endsAt > :now))
+              and (:videoOnly = false or a.video <> '')
             """)
     Page<TimedAuction> search(@Param("categoryId") String categoryId,
                               @Param("keyword") String keyword,
                               @Param("openOnly") boolean openOnly,
+                              @Param("videoOnly") boolean videoOnly,
                               @Param("now") long now,
                               Pageable pageable);
 
@@ -30,6 +32,12 @@ public interface TimedAuctionRepository extends JpaRepository<TimedAuction, Stri
 
     /** 홈 '곧 낙찰됩니다': 진행 중인 경매를 마감이 가까운 순으로 4개 */
     List<TimedAuction> findTop4ByArchivedFalseAndStartsAtLessThanEqualAndEndsAtGreaterThanOrderByEndsAtAsc(long startedBy, long endsAfter);
+
+    /** 홈 '영상으로 만나는 경매': 상품 소개 영상이 있고 아직 끝나지 않은 경매 (최근 등록 순 12개) */
+    List<TimedAuction> findTop12ByArchivedFalseAndVideoNotAndEndsAtGreaterThanOrderByCreatedDesc(String emptyVideo, long now);
+
+    /** 홈 '곧 시작하는 경매': 시작 전 경매를 시작이 가까운 순으로 4개 */
+    List<TimedAuction> findTop4ByArchivedFalseAndStartsAtGreaterThanOrderByStartsAtAsc(long now);
 
     /** 홈 '사진으로 보고, 경매에 참여하세요': 최근 등록 경매 8개 */
     List<TimedAuction> findTop8ByArchivedFalseOrderByCreatedDesc();

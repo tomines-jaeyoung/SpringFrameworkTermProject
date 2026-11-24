@@ -107,7 +107,7 @@ public class AuctionService {
     // ------------------------------------------------------------------ 조회
 
     @Transactional(readOnly = true)
-    public Page<TimedAuction> list(String categoryId, String keyword, String sort, boolean openOnly, int page) {
+    public Page<TimedAuction> list(String categoryId, String keyword, String sort, boolean openOnly, boolean videoOnly, int page) {
         Sort order = switch (sort == null ? "" : sort) {
             case "ending" -> Sort.by("endsAt").ascending();
             case "price" -> Sort.by("price").descending();
@@ -116,7 +116,7 @@ public class AuctionService {
         };
         String cat = (categoryId == null || categoryId.isBlank()) ? null : categoryId;
         String q = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
-        return auctionRepository.search(cat, q, openOnly, System.currentTimeMillis(), PageRequest.of(Math.max(page, 0), 12, order));
+        return auctionRepository.search(cat, q, openOnly, videoOnly, System.currentTimeMillis(), PageRequest.of(Math.max(page, 0), 12, order));
     }
 
     /** 홈: 진행 중 경매 중 마감 임박 4개 */
@@ -129,6 +129,18 @@ public class AuctionService {
     @Transactional(readOnly = true)
     public long bookmarkCount(Member m) {
         return m == null ? 0 : bookmarkRepository.countByUserId(m.getId());
+    }
+
+    /** 홈: 상품 소개 영상이 있는 경매 */
+    @Transactional(readOnly = true)
+    public List<TimedAuction> withVideo() {
+        return auctionRepository.findTop12ByArchivedFalseAndVideoNotAndEndsAtGreaterThanOrderByCreatedDesc("", System.currentTimeMillis());
+    }
+
+    /** 홈: 시작 예정 경매 */
+    @Transactional(readOnly = true)
+    public List<TimedAuction> upcoming() {
+        return auctionRepository.findTop4ByArchivedFalseAndStartsAtGreaterThanOrderByStartsAtAsc(System.currentTimeMillis());
     }
 
     /** 홈: 최근 등록 경매 8개 */

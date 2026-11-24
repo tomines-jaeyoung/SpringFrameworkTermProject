@@ -6,12 +6,18 @@
 <main class="oa-main oa-mid">
     <section class="oa-panel">
         <h1>어떤 방식으로 판매할까요?</h1>
-        <div class="oa-sell-options">
+        <div class="oa-sell-options oa-sell-options-3">
             <a class="oa-sell-option oa-sell-video" th:href="@{/sell/timed}">
                 <span class="oa-sell-icon" aria-hidden="true">▶</span>
                 <strong>사진·동영상 경매</strong>
                 <span>사진이나 영상을 올리고 경매 기간을 정해요.</span>
                 <small>파일 업로드 · 바로 등록 가능</small>
+            </a>
+            <a class="oa-sell-option oa-sell-video" th:href="@{/sell/product}">
+                <span class="oa-sell-icon" aria-hidden="true">₩</span>
+                <strong>즉시 판매</strong>
+                <span>사진과 가격을 올리면 원하는 사람이 바로 구매해요.</span>
+                <small>중고 거래처럼 · 정해진 가격</small>
             </a>
             <div class="oa-sell-option oa-disabled" aria-disabled="true">
                 <span class="oa-sell-icon" aria-hidden="true">●</span>

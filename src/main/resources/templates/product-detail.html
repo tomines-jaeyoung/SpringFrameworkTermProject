@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head(${p.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <p class="oa-eyebrow"><a th:href="@{/home(view=products)}">즉시 구매</a> › <a th:href="@{/home(view=products,category=${p.categoryId})}" th:text="${p.category}">카테고리</a></p>
+
+    <div class="oa-detail">
+        <section class="oa-media">
+            <img th:src="@{${p.image}}" th:alt="${p.title}">
+        </section>
+
+        <section class="oa-info">
+            <span class="oa-badge" th:classappend="${p.sold} ? 'oa-badge-sold' : 'oa-badge-live'" th:text="${p.statusLabel()}">판매 중</span>
+            <h1 th:text="${p.title}">상품명</h1>
+            <p class="oa-seller">판매자 <strong th:text="${p.seller}">판매자</strong></p>
+
+            <dl class="oa-facts">
+                <div><dt>판매 가격</dt><dd class="oa-price" th:text="${@fmt.won(p.price)}">0원</dd></div>
+                <div><dt>거래 방식</dt><dd>즉시 구매</dd></div>
+                <div><dt>카테고리</dt><dd th:text="${p.category}">-</dd></div>
+                <div><dt>등록</dt><dd th:text="${@fmt.dateTime(p.created)}">-</dd></div>
+                <div th:if="${p.sold}"><dt>판매 완료</dt><dd th:text="${@fmt.dateTime(p.soldAt)}">-</dd></div>
+            </dl>
+
+            <!-- 구매: 판매 중 · 본인 상품이 아닐 때만. 서버에서 조건부 갱신으로 먼저 누른 한 명만 성공 -->
+            <form th:if="${!p.sold && !mine && me != null}" th:action="@{/products/{id}/buy(id=${p.id})}" method="post">
+                <button type="submit" class="oa-btn oa-btn-coral oa-block" th:text="${@fmt.won(p.price)} + ' 구매하기'">구매하기</button>
+            </form>
+            <a th:if="${!p.sold && me == null}" class="oa-btn oa-btn-coral oa-block" th:href="@{/login}">로그인하고 구매하기</a>
+            <p th:if="${mine && !p.sold}" class="oa-note">내가 등록한 상품입니다. 구매자가 나타나면 판매 완료로 바뀌어요.</p>
+            <p th:if="${p.sold && me != null && p.buyerName == me.name && !mine}" class="oa-note">내가 구매한 상품입니다.</p>
+            <p th:if="${p.sold}" class="oa-note" th:text="'판매 완료된 상품입니다. 구매자: ' + ${p.buyerName}">판매 완료</p>
+            <p class="oa-hint">실제 결제·배송이 없는 체험 서비스입니다.</p>
+        </section>
+    </div>
+
+    <div class="oa-detail-lower">
+        <section class="oa-panel">
+            <h2>상품 설명</h2>
+            <p class="oa-desc" th:text="${p.description}">설명</p>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

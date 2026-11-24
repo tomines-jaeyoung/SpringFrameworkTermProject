@@ -8,7 +8,7 @@
     <p class="oa-sub">아이디 <strong th:text="${me.username}">id</strong> · 가입일 <span th:text="${@fmt.dateTime(me.created)}">-</span></p>
 
     <section class="oa-block-section">
-        <h2>내 판매 목록 <small th:text="${#lists.size(sales)} + '개'"></small></h2>
+        <h2>내 경매 목록 <small th:text="${#lists.size(sales)} + '개'"></small></h2>
         <div class="oa-grid" th:if="${!#lists.isEmpty(sales)}">
             <th:block th:each="a : ${sales}">
                 <article th:replace="~{fragments/layout :: card(${a})}"></article>
@@ -25,6 +25,39 @@
             </th:block>
         </div>
         <p th:if="${#lists.isEmpty(bookmarks)}" class="oa-sub">저장한 경매가 없습니다.</p>
+    </section>
+
+    <section class="oa-block-section oa-panel">
+        <h2>내 즉시 판매 상품 <small th:text="${#lists.size(productSales)} + '개'"></small></h2>
+        <table class="oa-table" th:if="${!#lists.isEmpty(productSales)}">
+            <thead><tr><th>상품</th><th>가격</th><th>상태</th><th>구매자</th><th>등록</th></tr></thead>
+            <tbody>
+            <tr th:each="p : ${productSales}">
+                <td><a th:href="@{/products/{id}(id=${p.id})}" th:text="${p.title}">상품</a></td>
+                <td th:text="${@fmt.won(p.price)}">0원</td>
+                <td th:text="${p.statusLabel()}">판매 중</td>
+                <td th:text="${p.buyerName != null ? p.buyerName : '-'}">-</td>
+                <td th:text="${@fmt.dateTime(p.created)}">-</td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${#lists.isEmpty(productSales)}" class="oa-sub">즉시 판매로 등록한 상품이 없습니다. <a th:href="@{/sell/product}">즉시 판매 등록</a></p>
+    </section>
+
+    <section class="oa-block-section oa-panel">
+        <h2>구매한 상품 <small th:text="${#lists.size(purchases)} + '개'"></small></h2>
+        <table class="oa-table" th:if="${!#lists.isEmpty(purchases)}">
+            <thead><tr><th>상품</th><th>가격</th><th>판매자</th><th>구매 시각</th></tr></thead>
+            <tbody>
+            <tr th:each="p : ${purchases}">
+                <td><a th:href="@{/products/{id}(id=${p.id})}" th:text="${p.title}">상품</a></td>
+                <td th:text="${@fmt.won(p.price)}">0원</td>
+                <td th:text="${p.seller}">판매자</td>
+                <td th:text="${@fmt.dateTime(p.soldAt)}">-</td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${#lists.isEmpty(purchases)}" class="oa-sub">구매한 상품이 없습니다. <a th:href="@{/home(view=products)}">즉시 구매 둘러보기</a></p>
     </section>
 
     <section class="oa-block-section oa-panel">
