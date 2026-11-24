@@ -36,7 +36,8 @@
                 <td><a th:href="@{/auctions/{id}(id=${b.auction.id})}" th:text="${b.auction.title}">상품</a></td>
                 <td th:text="${@fmt.won(b.amount)}">0원</td>
                 <td th:text="${@fmt.won(b.auction.price)}">0원</td>
-                <td th:text="${b.auction.leader == me.name and b.auction.price == b.amount} ? '최고 입찰' : ${b.auction.status(@fmt.now())}">-</td>
+                <td th:text="${b.auction.leader == me.name and b.auction.price == b.amount} ? '최고 입찰'
+                        : (${b.auction.isOpen(@fmt.now()) and b.amount < b.auction.price} ? '상위 입찰 있음' : ${b.auction.status(@fmt.now())})">-</td>
                 <td th:text="${@fmt.dateTime(b.created)}">-</td>
             </tr>
             </tbody>
