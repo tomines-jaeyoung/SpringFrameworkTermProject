@@ -11,7 +11,8 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 | 화면 | 주소 |
 |---|---|
 | 첫 화면(소개) | http://192.168.26.135:8081/ |
-| 경매 목록 | http://192.168.26.135:8081/home |
+| 홈 (영상 경매 · 곧 낙찰 · 사진 경매 · 즉시 구매) | http://192.168.26.135:8081/home |
+| 즉시 구매 목록 | http://192.168.26.135:8081/home?view=products |
 | 회원가입 · 로그인 | http://192.168.26.135:8081/signup · http://192.168.26.135:8081/login |
 
 ## 실행 방법 (IntelliJ)
@@ -21,7 +22,7 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 3. `OnAirMarketApplication` 실행 → http://localhost:8080
    - DB 스키마 `onairmarket`은 없으면 자동 생성됩니다 (`createDatabaseIfNotExist=true`).
    - 테이블은 JPA 엔티티로 자동 생성됩니다 (`spring.jpa.hibernate.ddl-auto=update`). 별도 SQL 파일이 필요 없습니다.
-   - 처음 실행할 때 체험용 회원 2명과 샘플 경매 8개가 자동으로 들어갑니다.
+   - 처음 실행할 때 체험용 회원 2명, 샘플 경매 12개(영상 경매·시작 예정·종료 예시 포함), 즉시 구매 상품 5개가 자동으로 들어갑니다.
 
 | 체험 계정 | 아이디 | 비밀번호 |
 |---|---|---|
@@ -45,15 +46,15 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 | 설계 보고서 ID | 기능 | 구현 위치 |
 |---|---|---|
 | F-01 계정 인증 | 회원가입·로그인·로그아웃 (DB 연동) | `AuthController`, `MemberService`, `SecurityConfig` |
-| F-02 목록 탐색 | 카테고리·검색·정렬(최신/마감 임박/입찰 많은 순/현재가)·진행 중 필터 | `HomeController`, `TimedAuctionRepository.search` |
-| F-03 판매 방식 선택·등록 | 판매하기 → 방식 선택 → 사진·동영상 경매 등록 (즉시 시작/시작 예약, 7·30·90일/직접 지정) | `SellController`, `AuctionService.create` |
+| F-02 목록 탐색 | 홈 섹션(영상으로 만나는 경매·곧 낙찰·사진 경매·즉시 구매·곧 시작하는 경매), 둘러보기: 카테고리·검색·정렬(최신/마감 임박/입찰 많은 순/현재가)·진행 중·동영상만 필터 | `HomeController`, `TimedAuctionRepository.search` |
+| F-03 판매 방식 선택·등록 | 판매하기 → 방식 선택(사진·동영상 경매 / 즉시 판매 / 라이브는 보류) → 등록 (경매: 즉시 시작/시작 예약, 7·30·90일/직접 지정) | `SellController`, `AuctionService.create`, `ProductService.create` |
 | F-04 파일 업로드 | 사진 8MB(JPG·PNG·WebP), 영상 50MB(MP4·WebM), 파일 앞부분으로 형식 확인, pending → ready, 실패 시 정리, 업로드 진행률 | `MediaService`, `onair.js` |
 | F-05 입찰 | 현재가 + 1,000원만 허용, revision 조건부 갱신, 동시 입찰 시 한 건만 성공, 본인 경매·기간 외 입찰 차단 | `AuctionService.bid`, `TimedAuctionRepository.applyBid` |
 | F-07 관심 저장 | 저장/해제, 복합 기본 키로 중복 방지 | `AuctionService.toggleBookmark` |
 | F-08 즉시 구매 | 즉시 판매 등록(/sell/product), 목록(/home?view=products), 상세, 구매 — 판매 중일 때 먼저 누른 1명만 판매 완료(조건부 UPDATE), 본인 상품 구매 불가, 내 정보에 판매·구매 기록 | `ProductService`, `ProductRepository.markSold` |
-| 내 정보 | 내 판매 목록, 관심 경매, 내 입찰 기록 | `MyPageController` |
+| 내 정보 | 내 경매 목록, 관심 경매, 내 즉시 판매 상품, 구매한 상품, 내 입찰 기록 | `MyPageController` |
 
-## DB 테이블 (JPA 엔티티)
+## DB 테이블 (JPA 엔티티 6개)
 
 | 테이블 | 엔티티 | 주요 조건 |
 |---|---|---|
@@ -62,6 +63,7 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 | `timed_bids` | `TimedBid` | UNIQUE (auction_id, revision) |
 | `auction_media` | `AuctionMedia` | status pending/ready |
 | `bookmarks` | `Bookmark` | 복합 기본 키 (user_id, auction_id) |
+| `products` | `Product` | status selling/sold, 구매자(buyer_id) 기록, 조건부 UPDATE로 1명만 구매 |
 
 설계 보고서처럼 SQL 외래 키 제약은 만들지 않고(`ConstraintMode.NO_CONSTRAINT`), 참조 대상·소유권은 서비스에서 검사합니다.
 
@@ -86,3 +88,13 @@ git pull && docker compose up -d --build     # 코드 수정 후 다시 배포
 ```
 
 DB 데이터와 업로드 파일은 Docker 볼륨(`db-data`, `uploads`)에 저장되어 재시작해도 유지됩니다.
+
+`docker compose`가 없는 서버(학교 서버)에서는 기본 `docker` 명령으로 같은 구성을 실행합니다.
+
+```bash
+docker network create onair
+docker run -d --name onair-db --network onair --restart unless-stopped   -e MYSQL_ROOT_PASSWORD=1234 -e MYSQL_DATABASE=onairmarket -e TZ=Asia/Seoul -v onair-db:/var/lib/mysql   mysql:8.0 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+docker build -t onairmarket .
+docker run -d --name onair-app --network onair --restart unless-stopped -p 8081:8080   -e SPRING_DATASOURCE_URL="jdbc:mysql://onair-db:3306/onairmarket?createDatabaseIfNotExist=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false"   -e ONAIR_UPLOADDIR=/app/uploads -e SPRING_JPA_SHOWSQL=false -v onair-uploads:/app/uploads onairmarket
+# 코드 수정 후: git pull && docker build -t onairmarket . && docker rm -f onair-app && (위 docker run onair-app 다시 실행)
+```
