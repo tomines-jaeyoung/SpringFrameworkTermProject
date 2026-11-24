@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('내 정보')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <h1 class="oa-page-title"><span th:text="${me.name}">이름</span>님의 온에어마켓</h1>
+    <p class="oa-sub">아이디 <strong th:text="${me.username}">id</strong> · 가입일 <span th:text="${@fmt.dateTime(me.created)}">-</span></p>
+
+    <section class="oa-block-section">
+        <h2>내 판매 목록 <small th:text="${#lists.size(sales)} + '개'"></small></h2>
+        <div class="oa-grid" th:if="${!#lists.isEmpty(sales)}">
+            <th:block th:each="a : ${sales}">
+                <article th:replace="~{fragments/layout :: card(${a})}"></article>
+            </th:block>
+        </div>
+        <p th:if="${#lists.isEmpty(sales)}" class="oa-sub">등록한 경매가 없습니다. <a th:href="@{/sell}">판매하기</a></p>
+    </section>
+
+    <section class="oa-block-section">
+        <h2>관심 경매 <small th:text="${#lists.size(bookmarks)} + '개'"></small></h2>
+        <div class="oa-grid" th:if="${!#lists.isEmpty(bookmarks)}">
+            <th:block th:each="b : ${bookmarks}">
+                <article th:replace="~{fragments/layout :: card(${b.auction})}"></article>
+            </th:block>
+        </div>
+        <p th:if="${#lists.isEmpty(bookmarks)}" class="oa-sub">저장한 경매가 없습니다.</p>
+    </section>
+
+    <section class="oa-block-section oa-panel">
+        <h2>내 입찰 기록 <small th:text="${#lists.size(myBids)} + '건'"></small></h2>
+        <table class="oa-table" th:if="${!#lists.isEmpty(myBids)}">
+            <thead><tr><th>상품</th><th>입찰 금액</th><th>현재가</th><th>상태</th><th>입찰 시각</th></tr></thead>
+            <tbody>
+            <tr th:each="b : ${myBids}">
+                <td><a th:href="@{/auctions/{id}(id=${b.auction.id})}" th:text="${b.auction.title}">상품</a></td>
+                <td th:text="${@fmt.won(b.amount)}">0원</td>
+                <td th:text="${@fmt.won(b.auction.price)}">0원</td>
+                <td th:text="${b.auction.leader == me.name and b.auction.price == b.amount} ? '최고 입찰' : ${b.auction.status(@fmt.now())}">-</td>
+                <td th:text="${@fmt.dateTime(b.created)}">-</td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${#lists.isEmpty(myBids)}" class="oa-sub">입찰 기록이 없습니다.</p>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

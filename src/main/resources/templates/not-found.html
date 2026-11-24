@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('찾을 수 없음')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main oa-narrow">
+    <section class="oa-panel">
+        <h1>경매를 찾을 수 없어요</h1>
+        <p class="oa-sub" th:text="${message}">경매를 찾을 수 없습니다.</p>
+        <a class="oa-btn oa-btn-coral" th:href="@{/}">경매 목록으로</a>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

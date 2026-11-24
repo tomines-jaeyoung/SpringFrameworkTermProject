@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('경매 둘러보기')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main oa-with-side">
+    <aside class="oa-side" aria-label="카테고리">
+        <h2>카테고리</h2>
+        <a th:href="@{/(q=${q},sort=${sort},open=${open})}" th:classappend="${category == null} ? 'on'">전체</a>
+        <a th:each="c : ${categories}" th:href="@{/(category=${c.id},q=${q},sort=${sort},open=${open})}"
+           th:classappend="${c.id == category} ? 'on'" th:text="${c.label}">카테고리</a>
+    </aside>
+
+    <section class="oa-content">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+        <div class="oa-hero">
+            <div>
+                <p class="oa-eyebrow">사진·동영상 기간 경매</p>
+                <h1>방송 없이도, 영상으로 보고 입찰하세요</h1>
+                <p>판매자가 미리 올린 사진과 상품 소개 영상을 보고, 정해진 기간 동안 입찰합니다.</p>
+            </div>
+            <a class="oa-btn oa-btn-coral" th:href="@{/sell}">내 물건 경매 올리기</a>
+        </div>
+
+        <div class="oa-toolbar">
+            <h2>
+                <span th:text="${categoryLabel != null ? categoryLabel : '전체 경매'}">전체 경매</span>
+                <small th:if="${q}" th:text="'“' + ${q} + '” 검색 결과'"></small>
+                <small th:text="${page.totalElements} + '개'">0개</small>
+            </h2>
+            <form th:action="@{/}" method="get" class="oa-filters">
+                <input type="hidden" name="category" th:value="${category}">
+                <input type="hidden" name="q" th:value="${q}">
+                <label>정렬
+                    <select name="sort" onchange="this.form.submit()">
+                        <option value="latest" th:selected="${sort == 'latest'}">최신 등록</option>
+                        <option value="ending" th:selected="${sort == 'ending'}">마감 임박</option>
+                        <option value="bids" th:selected="${sort == 'bids'}">입찰 많은 순</option>
+                        <option value="price" th:selected="${sort == 'price'}">현재가 높은 순</option>
+                    </select>
+                </label>
+                <label class="oa-check"><input type="checkbox" name="open" value="true" th:checked="${open}" onchange="this.form.submit()"> 진행 중만</label>
+            </form>
+        </div>
+
+        <div class="oa-grid" th:if="${!page.empty}">
+            <th:block th:each="a : ${page.content}">
+                <article th:replace="~{fragments/layout :: card(${a})}"></article>
+            </th:block>
+        </div>
+        <div class="oa-empty" th:if="${page.empty}">
+            <p>조건에 맞는 경매가 없습니다.</p>
+            <a class="oa-btn oa-btn-line" th:href="@{/}">전체 보기</a>
+        </div>
+
+        <nav class="oa-pager" th:if="${page.totalPages > 1}">
+            <a th:if="${page.hasPrevious()}" th:href="@{/(category=${category},q=${q},sort=${sort},open=${open},page=${page.number - 1})}">이전</a>
+            <span th:text="${page.number + 1} + ' / ' + ${page.totalPages}">1 / 1</span>
+            <a th:if="${page.hasNext()}" th:href="@{/(category=${category},q=${q},sort=${sort},open=${open},page=${page.number + 1})}">다음</a>
+        </nav>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

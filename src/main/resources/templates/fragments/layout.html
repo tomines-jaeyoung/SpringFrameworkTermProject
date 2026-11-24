@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · 온에어마켓'">온에어마켓</title>
+    <link rel="stylesheet" th:href="@{/css/onair.css}">
+    <script th:src="@{/js/onair.js}" defer></script>
+</head>
+<body>
+
+<header th:fragment="header" class="oa-header">
+    <div class="oa-header-inner">
+        <a class="oa-logo" th:href="@{/}"><span class="oa-dot"></span>온에어마켓</a>
+        <form class="oa-search" th:action="@{/}" method="get" role="search">
+            <input type="search" name="q" th:value="${q}" placeholder="상품명으로 검색" aria-label="상품 검색">
+            <button type="submit">검색</button>
+        </form>
+        <nav class="oa-nav">
+            <a class="oa-btn oa-btn-coral" th:href="@{/sell}">판매하기</a>
+            <th:block th:if="${me == null}">
+                <a class="oa-link" th:href="@{/login}">로그인</a>
+                <a class="oa-btn oa-btn-line" th:href="@{/signup}">회원가입</a>
+            </th:block>
+            <th:block th:if="${me != null}">
+                <a class="oa-link" th:href="@{/my}"><strong th:text="${me.name}">이름</strong>님</a>
+                <form th:action="@{/logout}" method="post" class="oa-inline">
+                    <button type="submit" class="oa-link-btn">로그아웃</button>
+                </form>
+            </th:block>
+        </nav>
+    </div>
+</header>
+
+<div th:fragment="flash">
+    <p class="oa-flash oa-flash-ok" th:if="${notice}" th:text="${notice}" role="status"></p>
+    <p class="oa-flash oa-flash-err" th:if="${error}" th:text="${error}" role="alert"></p>
+</div>
+
+<article th:fragment="card(a)" class="oa-card">
+    <a th:href="@{/auctions/{id}(id=${a.id})}">
+        <div class="oa-card-seller"><span class="oa-avatar" th:text="${#strings.substring(a.seller,0,1)}">온</span><span th:text="${a.seller}">판매자</span></div>
+        <div class="oa-card-photo">
+            <img th:src="@{${a.image}}" th:alt="${a.title}" loading="lazy">
+            <span class="oa-badge" th:classappend="${a.status(@fmt.now()) == '진행 중'} ? 'oa-badge-live' : ''" th:text="${a.status(@fmt.now())}">진행 중</span>
+            <span class="oa-badge oa-badge-video" th:if="${!#strings.isEmpty(a.video)}">영상</span>
+        </div>
+        <div class="oa-card-body">
+            <h3 th:text="${a.title}">상품명</h3>
+            <p class="oa-card-cat" th:text="${a.category}">카테고리</p>
+            <p class="oa-card-price"><span>현재가</span> <strong th:text="${@fmt.won(a.price)}">0원</strong></p>
+            <p class="oa-card-time">
+                <span th:text="${a.bidCount} + '회 입찰'">0회 입찰</span> ·
+                <span class="oa-countdown" th:attr="data-ends=${a.endsAt}" th:text="${@fmt.remaining(a.endsAt)}">00:00:00</span>
+            </p>
+        </div>
+    </a>
+</article>
+
+<footer th:fragment="footer" class="oa-footer">
+    <p>온에어마켓 · 프레임워크 실습 Term Project · 결제 없는 체험 경매</p>
+</footer>
+</body>
+</html>

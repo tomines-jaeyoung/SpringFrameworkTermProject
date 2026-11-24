@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('판매 방식 선택')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main oa-mid">
+    <section class="oa-panel">
+        <h1>어떤 방식으로 판매할까요?</h1>
+        <div class="oa-sell-options">
+            <a class="oa-sell-option oa-sell-video" th:href="@{/sell/timed}">
+                <span class="oa-sell-icon" aria-hidden="true">▶</span>
+                <strong>사진·동영상 경매</strong>
+                <span>사진이나 영상을 올리고 경매 기간을 정해요.</span>
+                <small>파일 업로드 · 바로 등록 가능</small>
+            </a>
+            <div class="oa-sell-option oa-disabled" aria-disabled="true">
+                <span class="oa-sell-icon" aria-hidden="true">●</span>
+                <strong>라이브 경매</strong>
+                <span>방송에서 소개할 상품과 경매를 등록해요.</span>
+                <small>준비 중 · 실시간 송출은 다음 연결 과제</small>
+            </div>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

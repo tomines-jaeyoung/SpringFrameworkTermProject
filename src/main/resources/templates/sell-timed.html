@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('사진·동영상 경매 등록')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main oa-mid">
+    <section class="oa-panel">
+        <p class="oa-eyebrow"><a th:href="@{/sell}">판매 방식 선택</a> › 사진·동영상 경매</p>
+        <h1>사진·동영상 경매 등록</h1>
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <!-- CSRF 토큰을 주소에도 붙여 큰 파일 업로드에서도 토큰 검사가 되게 함 -->
+        <form id="sell-form" th:action="@{/sell/timed(_csrf=${_csrf.token})}" th:object="${form}" method="post"
+              enctype="multipart/form-data" class="oa-form" novalidate>
+            <fieldset>
+                <legend>상품 정보</legend>
+                <label>상품명
+                    <input type="text" th:field="*{title}" maxlength="100" placeholder="3~100자">
+                    <span class="oa-err" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></span>
+                </label>
+                <label>카테고리
+                    <select th:field="*{categoryId}">
+                        <option value="">선택해 주세요</option>
+                        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.label}">카테고리</option>
+                    </select>
+                    <span class="oa-err" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></span>
+                </label>
+                <label>상품 설명
+                    <textarea th:field="*{description}" rows="6" maxlength="3000" placeholder="상태, 구성품, 사용 기간 등 (10자 이상)"></textarea>
+                    <span class="oa-err" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                </label>
+            </fieldset>
+
+            <fieldset>
+                <legend>사진·동영상</legend>
+                <label>대표 사진 <em>필수 · JPG·PNG·WebP · 8MB 이하</em>
+                    <input type="file" name="image" accept="image/jpeg,image/png,image/webp" data-max="8388608" data-kind="사진">
+                </label>
+                <label>상품 소개 영상 <em>선택 · MP4·WebM · 50MB 이하</em>
+                    <input type="file" name="video" accept="video/mp4,video/webm" data-max="52428800" data-kind="영상">
+                </label>
+                <p class="oa-hint" id="file-hint" role="status"></p>
+            </fieldset>
+
+            <fieldset>
+                <legend>경매 조건</legend>
+                <label>시작가 (원)
+                    <input type="number" th:field="*{startPrice}" min="100" max="100000000" step="100" placeholder="100원 ~ 1억 원">
+                    <span class="oa-err" th:if="${#fields.hasErrors('startPrice')}" th:errors="*{startPrice}"></span>
+                </label>
+                <p class="oa-hint">입찰은 현재가에 1,000원을 더한 금액으로만 할 수 있어요.</p>
+                <div class="oa-radio-row">
+                    <label><input type="radio" th:field="*{startMode}" value="now"> 등록 즉시 시작</label>
+                    <label><input type="radio" th:field="*{startMode}" value="scheduled"> 시작 시각 예약</label>
+                </div>
+                <label class="oa-when" data-show-when="scheduled">시작 시각
+                    <input type="datetime-local" th:field="*{startsAt}">
+                </label>
+                <div class="oa-radio-row">
+                    <label><input type="radio" th:field="*{duration}" value="7"> 7일</label>
+                    <label><input type="radio" th:field="*{duration}" value="30"> 30일</label>
+                    <label><input type="radio" th:field="*{duration}" value="90"> 90일</label>
+                    <label><input type="radio" th:field="*{duration}" value="custom"> 직접 지정</label>
+                </div>
+                <label class="oa-when" data-show-when="custom">종료 시각
+                    <input type="datetime-local" th:field="*{endsAt}">
+                </label>
+                <p class="oa-hint">경매 기간은 1시간 이상, 365일 이내입니다.</p>
+                <label class="oa-check">
+                    <input type="checkbox" th:field="*{physicalItem}"> 직접 보유한 실물 상품입니다.
+                </label>
+                <span class="oa-err" th:if="${#fields.hasErrors('physicalItem')}" th:errors="*{physicalItem}"></span>
+            </fieldset>
+
+            <div class="oa-progress" hidden><div class="oa-progress-bar"></div><span>0%</span></div>
+            <button type="submit" class="oa-btn oa-btn-coral oa-block">경매 등록</button>
+        </form>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

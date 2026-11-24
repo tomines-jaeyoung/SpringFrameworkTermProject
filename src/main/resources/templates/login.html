@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('로그인')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main oa-narrow">
+    <section class="oa-panel">
+        <h1>로그인</h1>
+        <div th:replace="~{fragments/layout :: flash}"></div>
+        <p class="oa-flash oa-flash-err" th:if="${param.error}" role="alert">아이디 또는 비밀번호가 올바르지 않습니다.</p>
+        <form th:action="@{/login}" method="post" class="oa-form">
+            <label>아이디
+                <input type="text" name="username" th:value="${joinedUsername}" autocomplete="username" required maxlength="20">
+            </label>
+            <label>비밀번호
+                <input type="password" name="password" autocomplete="current-password" required maxlength="64">
+            </label>
+            <button type="submit" class="oa-btn oa-btn-coral oa-block">로그인</button>
+        </form>
+        <p class="oa-sub">아직 회원이 아니신가요? <a th:href="@{/signup}">회원가입</a></p>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

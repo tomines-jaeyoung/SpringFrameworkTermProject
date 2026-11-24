@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head(${a.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <p class="oa-eyebrow"><a th:href="@{/}">경매</a> › <a th:href="@{/(category=${a.categoryId})}" th:text="${a.category}">카테고리</a></p>
+
+    <div class="oa-detail">
+        <section class="oa-media">
+            <video th:if="${!#strings.isEmpty(a.video)}" th:src="@{${a.video}}" th:poster="@{${a.image}}"
+                   controls preload="metadata" playsinline></video>
+            <img th:src="@{${a.image}}" th:alt="${a.title}" th:classappend="${!#strings.isEmpty(a.video)} ? 'oa-thumb'">
+        </section>
+
+        <section class="oa-info">
+            <span class="oa-badge" th:classappend="${status == '진행 중'} ? 'oa-badge-live'" th:text="${status}">진행 중</span>
+            <h1 th:text="${a.title}">상품명</h1>
+            <p class="oa-seller">판매자 <strong th:text="${a.seller}">판매자</strong></p>
+
+            <dl class="oa-facts">
+                <div><dt>현재가</dt><dd class="oa-price" th:text="${@fmt.won(a.price)}">0원</dd></div>
+                <div><dt>시작가</dt><dd th:text="${@fmt.won(a.startPrice)}">0원</dd></div>
+                <div><dt>입찰</dt><dd th:text="${a.bidCount} + '회'">0회</dd></div>
+                <div><dt>최고 입찰자</dt><dd th:text="${a.leader != null ? a.leader : '아직 없음'}">-</dd></div>
+                <div><dt>시작</dt><dd th:text="${@fmt.dateTime(a.startsAt)}">-</dd></div>
+                <div><dt>종료</dt><dd th:text="${@fmt.dateTime(a.endsAt)}">-</dd></div>
+                <div><dt>남은 시간</dt><dd class="oa-countdown" th:attr="data-ends=${a.endsAt}" th:text="${@fmt.remaining(a.endsAt)}">-</dd></div>
+            </dl>
+
+            <!-- 입찰: 현재가 + 1,000원과 화면이 본 revision 을 함께 보낸다 -->
+            <form th:if="${open && !mine && me != null}" th:action="@{/auctions/{id}/bid(id=${a.id})}" method="post" class="oa-bid">
+                <input type="hidden" name="amount" th:value="${a.nextBid()}">
+                <input type="hidden" name="revision" th:value="${a.revision}">
+                <button type="submit" class="oa-btn oa-btn-coral oa-block" th:text="${@fmt.won(a.nextBid())} + ' 입찰하기'">입찰하기</button>
+            </form>
+            <a th:if="${open && me == null}" class="oa-btn oa-btn-coral oa-block" th:href="@{/login}">로그인하고 입찰하기</a>
+            <p th:if="${mine}" class="oa-note">본인 경매에는 입찰할 수 없습니다.</p>
+            <p th:if="${!open && status == '시작 전'}" class="oa-note">아직 시작 전인 경매입니다.</p>
+            <p th:if="${!open && status == '종료'}" class="oa-note"
+               th:text="${a.leader != null ? '종료된 경매입니다. 낙찰: ' + a.leader + ' · ' + @fmt.won(a.price) : '입찰 없이 종료된 경매입니다.'}">종료</p>
+
+            <form th:if="${me != null}" th:action="@{/auctions/{id}/bookmark(id=${a.id})}" method="post">
+                <button type="submit" class="oa-btn oa-btn-line oa-block" th:text="${bookmarked ? '♥ 관심 저장됨 (해제)' : '♡ 관심 저장'}">관심 저장</button>
+            </form>
+        </section>
+    </div>
+
+    <div class="oa-detail-lower">
+        <section class="oa-panel">
+            <h2>상품 설명</h2>
+            <p class="oa-desc" th:text="${a.description}">설명</p>
+        </section>
+        <section class="oa-panel">
+            <h2>입찰 기록 <small th:text="'최근 ' + ${#lists.size(bids)} + '건'"></small></h2>
+            <table class="oa-table" th:if="${!#lists.isEmpty(bids)}">
+                <thead><tr><th>입찰자</th><th>금액</th><th>시각</th></tr></thead>
+                <tbody>
+                <tr th:each="b : ${bids}">
+                    <td th:text="${b.name}">이름</td>
+                    <td th:text="${@fmt.won(b.amount)}">0원</td>
+                    <td th:text="${@fmt.dateTime(b.created)}">-</td>
+                </tr>
+                </tbody>
+            </table>
+            <p th:if="${#lists.isEmpty(bids)}" class="oa-sub">아직 입찰이 없습니다.</p>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
