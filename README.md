@@ -2,7 +2,7 @@
 
 상품 소개 사진·동영상을 올리고, 정해진 기간 동안 입찰받는 경매 웹 서비스입니다.
 프레임워크 실습 기말 과제로, 온에어마켓 설계 보고서의 **사진·동영상 기간 경매**와 **회원가입·로그인**을
-Spring Boot + JPA로 구현했습니다. (라이브 경매는 보류: 판매 방식 선택 화면에 '준비 중'으로만 표시)
+Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으로 바로 사는 **즉시 구매**도 함께 구현했습니다. (라이브 경매는 보류)
 
 ## ▶ 바로 실행해 보기
 
@@ -50,6 +50,7 @@ Spring Boot + JPA로 구현했습니다. (라이브 경매는 보류: 판매 방
 | F-04 파일 업로드 | 사진 8MB(JPG·PNG·WebP), 영상 50MB(MP4·WebM), 파일 앞부분으로 형식 확인, pending → ready, 실패 시 정리, 업로드 진행률 | `MediaService`, `onair.js` |
 | F-05 입찰 | 현재가 + 1,000원만 허용, revision 조건부 갱신, 동시 입찰 시 한 건만 성공, 본인 경매·기간 외 입찰 차단 | `AuctionService.bid`, `TimedAuctionRepository.applyBid` |
 | F-07 관심 저장 | 저장/해제, 복합 기본 키로 중복 방지 | `AuctionService.toggleBookmark` |
+| F-08 즉시 구매 | 즉시 판매 등록(/sell/product), 목록(/home?view=products), 상세, 구매 — 판매 중일 때 먼저 누른 1명만 판매 완료(조건부 UPDATE), 본인 상품 구매 불가, 내 정보에 판매·구매 기록 | `ProductService`, `ProductRepository.markSold` |
 | 내 정보 | 내 판매 목록, 관심 경매, 내 입찰 기록 | `MyPageController` |
 
 ## DB 테이블 (JPA 엔티티)
@@ -68,7 +69,8 @@ Spring Boot + JPA로 구현했습니다. (라이브 경매는 보류: 판매 방
 
 - **members 테이블 추가**: 보고서는 호스팅 계정 인증(로컬 users 테이블 없음) 기준이지만, 과제 조건(회원가입·로그인 DB 연동)에 맞춰 회원 테이블을 추가했습니다.
 - **저장소**: Cloudflare D1 → MySQL, R2 → 로컬 `uploads/` 폴더.
-- **구현 범위**: 라이브 경매(auctions·bids·messages·room_presence), 고정가 상품·예약(fixed_products·demo_orders), 관리자(admin_audit·seller_status), 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
+- **구현 범위**: 라이브 경매(auctions·bids·messages·room_presence)는 보류, 관리자(admin_audit·seller_status)와 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
+- **즉시 구매**: 원 설계의 고정가 상품·예약(fixed_products·demo_orders, 재고·15분 예약)은 중고 거래형 `products` 한 테이블로 단순화했습니다. 상품 1개를 먼저 구매한 한 명에게 판매 완료합니다.
 - 결제·정산은 없습니다 (체험 경매).
 
 ## 서버 배포 (Docker)
