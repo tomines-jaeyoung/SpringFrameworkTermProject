@@ -1,6 +1,7 @@
 package kr.ac.kopo.kim.onairmarket.controller;
 
 import kr.ac.kopo.kim.onairmarket.domain.Category;
+import kr.ac.kopo.kim.onairmarket.domain.Member;
 import kr.ac.kopo.kim.onairmarket.domain.TimedAuction;
 import kr.ac.kopo.kim.onairmarket.service.AuctionService;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +23,38 @@ public class HomeController {
         return "landing";
     }
 
+    /**
+     * 원래 온에어 마켓의 홈(/home).
+     * 검색어·카테고리·정렬 등 조건이 없으면 섹션 화면(곧 낙찰·오늘의 발견·사진 경매 등),
+     * 조건이 있거나 view=all 이면 경매 목록(둘러보기) 화면을 보여 준다.
+     */
     @GetMapping("/home")
     public String home(@RequestParam(required = false) String category,
                        @RequestParam(required = false) String q,
                        @RequestParam(defaultValue = "latest") String sort,
                        @RequestParam(defaultValue = "false") boolean open,
                        @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(required = false) String view,
                        Model model) {
-        Page<TimedAuction> result = auctionService.list(category, q, sort, open, page);
-        model.addAttribute("page", result);
+        category = (category == null || category.isBlank()) ? null : category;
+        q = (q == null || q.isBlank()) ? null : q.trim();
+        boolean results = category != null || q != null || "all".equals(view) || open || page > 0 || !"latest".equals(sort);
+
         model.addAttribute("category", category);
         model.addAttribute("categoryLabel", Category.find(category).map(Category::label).orElse(null));
         model.addAttribute("q", q);
         model.addAttribute("sort", sort);
         model.addAttribute("open", open);
+        model.addAttribute("bookmarkCount", auctionService.bookmarkCount((Member) model.getAttribute("me")));
+        if (results) {
+            Page<TimedAuction> result = auctionService.list(category, q, sort, open, page);
+            model.addAttribute("page", result);
+            model.addAttribute("mode", "results");
+        } else {
+            model.addAttribute("endingSoon", auctionService.endingSoon());
+            model.addAttribute("latest", auctionService.latest());
+            model.addAttribute("mode", "home");
+        }
         return "home";
     }
 }

@@ -119,6 +119,24 @@ public class AuctionService {
         return auctionRepository.search(cat, q, openOnly, System.currentTimeMillis(), PageRequest.of(Math.max(page, 0), 12, order));
     }
 
+    /** 홈: 진행 중 경매 중 마감 임박 4개 */
+    @Transactional(readOnly = true)
+    public List<TimedAuction> endingSoon() {
+        long now = System.currentTimeMillis();
+        return auctionRepository.findTop4ByArchivedFalseAndStartsAtLessThanEqualAndEndsAtGreaterThanOrderByEndsAtAsc(now, now);
+    }
+
+    @Transactional(readOnly = true)
+    public long bookmarkCount(Member m) {
+        return m == null ? 0 : bookmarkRepository.countByUserId(m.getId());
+    }
+
+    /** 홈: 최근 등록 경매 8개 */
+    @Transactional(readOnly = true)
+    public List<TimedAuction> latest() {
+        return auctionRepository.findTop8ByArchivedFalseOrderByCreatedDesc();
+    }
+
     @Transactional(readOnly = true)
     public TimedAuction get(String id) {
         TimedAuction a = auctionRepository.findById(id).orElseThrow(() -> new ServiceException("경매를 찾을 수 없습니다."));

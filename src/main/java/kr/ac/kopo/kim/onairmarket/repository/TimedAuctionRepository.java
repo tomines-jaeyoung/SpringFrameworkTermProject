@@ -28,6 +28,12 @@ public interface TimedAuctionRepository extends JpaRepository<TimedAuction, Stri
 
     List<TimedAuction> findByOwnerIdAndArchivedFalseOrderByCreatedDesc(Long ownerId);
 
+    /** 홈 '곧 낙찰됩니다': 진행 중인 경매를 마감이 가까운 순으로 4개 */
+    List<TimedAuction> findTop4ByArchivedFalseAndStartsAtLessThanEqualAndEndsAtGreaterThanOrderByEndsAtAsc(long startedBy, long endsAfter);
+
+    /** 홈 '사진으로 보고, 경매에 참여하세요': 최근 등록 경매 8개 */
+    List<TimedAuction> findTop8ByArchivedFalseOrderByCreatedDesc();
+
     /**
      * 조건부 갱신 입찰. 서버가 확인한 revision·현재가가 그대로이고, 본인 경매가 아니며,
      * 입찰 기간 안일 때만 1행이 바뀐다. 0이면 다른 입찰이 먼저 반영된 충돌이다.

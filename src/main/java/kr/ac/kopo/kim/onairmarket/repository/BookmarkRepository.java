@@ -11,4 +11,6 @@ import java.util.List;
 public interface BookmarkRepository extends JpaRepository<Bookmark, BookmarkId> {
     @Query("select b from Bookmark b join fetch b.auction where b.user.id = :userId order by b.created desc")
     List<Bookmark> findMine(@Param("userId") Long userId);
+
+    long countByUserId(Long userId);
 }

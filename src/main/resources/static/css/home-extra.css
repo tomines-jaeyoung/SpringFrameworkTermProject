@@ -1,0 +1,27 @@
+/* /home 보조 스타일: 원래 화면(experience.css)에 없던 Spring 버전 요소만 추가 */
+.oa-v2 a.ta-card, .oa-v2 a.rf-topic { display: block; color: inherit; text-decoration: none; }
+.oa-v2 a.rf-topic { display: grid; }
+.oa-v2 .ta-heading .oa-see-all { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.oa-v2 .oa-mobile-only[href="/my"] { font-weight: 700; }
+.oa-home-empty { margin: 6px 0 14px; padding: 22px; border: 1px dashed #e2e4e6; border-radius: 7px; color: #777a74; font-size: 12px; text-align: center; }
+.oa-home-empty a { display: inline-block; margin-top: 10px; color: #ef6d57; font-weight: 700; }
+
+/* 둘러보기(검색 결과) */
+.oa-cat-chips { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 14px; scrollbar-width: thin; }
+.oa-cat-chips a { flex-shrink: 0; padding: 7px 12px; border: 1px solid #e4e6e8; border-radius: 100px; background: #fff; font-size: 11px; white-space: nowrap; }
+.oa-cat-chips a.on { background: #f57057; border-color: #f57057; color: #202421; font-weight: 700; }
+.oa-result-tools { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin: 0 0 14px; font-size: 11px; color: #555; }
+.oa-result-tools label { display: inline-flex; align-items: center; gap: 6px; }
+.oa-result-tools select { border: 1px solid #e4e6e8; border-radius: 6px; padding: 5px 8px; background: #fff; font-size: 11px; }
+.oa-pager { display: flex; justify-content: center; align-items: center; gap: 14px; margin: 24px 0 8px; font-size: 12px; }
+.oa-pager a { padding: 7px 14px; border: 1px solid #e4e6e8; border-radius: 100px; background: #fff; font-weight: 700; }
+
+/* 준비 중 기능 안내 */
+.oa-soon-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 100; max-width: 90vw;
+  padding: 13px 20px; border-radius: 10px; background: #202521eb; color: #fff; font-size: 12px; box-shadow: 0 6px 20px #0003; }
+.oa-soon-toast[hidden] { display: none; }
+[data-href] { cursor: pointer; }
+
+/* 원래 CSS는 안내 문구를 ':after'로 덮어쓰므로, Spring 버전 안내(라이브 준비 중)가 보이게 되돌림 */
+.oa-v2 .lv-v10.rf-page .lv-demo-disclosure > span { font-size: 9px; }
+.oa-v2 .lv-v10.rf-page .lv-demo-disclosure > span:after { content: none; }
