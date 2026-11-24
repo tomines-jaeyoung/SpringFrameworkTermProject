@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<!-- Spring Boot 기본 오류 화면(Whitelabel) 대신 보여 주는 공통 오류 화면 (404·405·500 등) -->
+<head th:replace="~{fragments/layout :: head('오류')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main oa-narrow">
+    <section class="oa-panel">
+        <p class="oa-eyebrow" th:text="${status} + ' ' + ${error}">404 Not Found</p>
+        <h1 th:text="${status == 404} ? '페이지를 찾을 수 없어요' : (${status == 405} ? '이 주소는 버튼으로만 사용할 수 있어요' : '문제가 생겼어요')">문제가 생겼어요</h1>
+        <p class="oa-sub" th:text="${status == 404} ? '주소가 바뀌었거나 삭제된 페이지입니다.' : '잠시 후 다시 시도하거나 홈으로 돌아가 주세요.'">잠시 후 다시 시도해 주세요.</p>
+        <a class="oa-btn oa-btn-coral" th:href="@{/home}">홈으로</a>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

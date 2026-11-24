@@ -1,5 +1,6 @@
 package kr.ac.kopo.kim.onairmarket.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import kr.ac.kopo.kim.onairmarket.domain.Member;
 import kr.ac.kopo.kim.onairmarket.domain.Product;
 import kr.ac.kopo.kim.onairmarket.exception.ServiceException;
@@ -23,11 +24,13 @@ public class ProductController {
     private final MemberService memberService;
 
     @GetMapping("/products/{id}")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable String id, Model model, HttpServletResponse response) {
         Product p;
         try {
             p = productService.get(id);
         } catch (ServiceException e) {
+            model.addAttribute("message", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "not-found";
         }
         Member me = (Member) model.getAttribute("me");

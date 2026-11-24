@@ -1,5 +1,6 @@
 package kr.ac.kopo.kim.onairmarket.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import kr.ac.kopo.kim.onairmarket.domain.Member;
 import kr.ac.kopo.kim.onairmarket.domain.TimedAuction;
 import kr.ac.kopo.kim.onairmarket.exception.ServiceException;
@@ -22,13 +23,14 @@ public class AuctionController {
     private final MemberService memberService;
 
     @GetMapping("/{id}")
-    public String detail(@PathVariable String id, Model model) {
+    public String detail(@PathVariable String id, Model model, HttpServletResponse response) {
         Member me = (Member) model.getAttribute("me");   // GlobalControllerAdvice 가 넣은 로그인 회원 (비로그인 null)
         TimedAuction a;
         try {
             a = auctionService.get(id);
         } catch (ServiceException e) {
             model.addAttribute("message", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return "not-found";
         }
         long now = System.currentTimeMillis();
