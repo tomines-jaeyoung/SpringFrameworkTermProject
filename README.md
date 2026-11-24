@@ -60,3 +60,17 @@ Spring Boot + JPA로 구현했습니다. (라이브 경매는 보류: 판매 방
 - **저장소**: Cloudflare D1 → MySQL, R2 → 로컬 `uploads/` 폴더.
 - **구현 범위**: 라이브 경매(auctions·bids·messages·room_presence), 고정가 상품·예약(fixed_products·demo_orders), 관리자(admin_audit·seller_status), 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
 - 결제·정산은 없습니다 (체험 경매).
+
+## 서버 배포 (Docker)
+
+서버에 Java·MySQL이 없어도 Docker만 있으면 실행됩니다. MySQL 8 컨테이너와 앱 컨테이너가 함께 뜹니다.
+
+```bash
+git clone https://github.com/tomines-jaeyoung/SpringFrameworkTermProject.git
+cd SpringFrameworkTermProject
+APP_PORT=8081 docker compose up -d --build   # http://서버주소:8081
+docker compose logs -f app                   # 실행 로그
+git pull && docker compose up -d --build     # 코드 수정 후 다시 배포
+```
+
+DB 데이터와 업로드 파일은 Docker 볼륨(`db-data`, `uploads`)에 저장되어 재시작해도 유지됩니다.
