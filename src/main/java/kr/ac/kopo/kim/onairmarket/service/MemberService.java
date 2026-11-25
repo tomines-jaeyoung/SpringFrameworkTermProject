@@ -48,6 +48,8 @@ public class MemberService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member m = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        return User.withUsername(m.getUsername()).password(m.getPassword()).roles(m.getRole()).build();
+        return User.withUsername(m.getUsername()).password(m.getPassword()).roles(m.getRole())
+                .disabled(m.isSuspended())    // 이용 정지 회원은 로그인 거부 (DisabledException)
+                .build();
     }
 }

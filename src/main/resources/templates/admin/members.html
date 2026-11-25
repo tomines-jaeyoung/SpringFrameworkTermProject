@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('회원 관리')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <div th:replace="~{admin/fragments :: top('회원 관리', 'members 테이블 · 이용 정지하면 로그인할 수 없고, 로그인 중이면 바로 로그아웃됩니다')}"></div>
+    <section class="oa-panel">
+        <form th:replace="~{admin/fragments :: search('/admin/members', '아이디 또는 이름')}"></form>
+        <p class="oa-sub" th:text="'전체 ' + ${page.totalElements} + '명'">전체 0명</p>
+        <div class="oa-table-wrap">
+        <table class="oa-table">
+            <thead><tr><th>번호</th><th>아이디</th><th>이름</th><th>권한</th><th>상태</th><th>가입일</th><th>관리</th></tr></thead>
+            <tbody>
+            <tr th:each="m : ${page.content}">
+                <td th:text="${m.id}">1</td>
+                <td><strong th:text="${m.username}">id</strong></td>
+                <td th:text="${m.name}">이름</td>
+                <td><span class="oa-tag" th:classappend="${m.admin} ? 'oa-tag-dark'" th:text="${m.admin} ? '관리자' : '일반'">일반</span></td>
+                <td><span class="oa-tag" th:classappend="${m.suspended} ? 'oa-tag-red' : 'oa-tag-green'" th:text="${m.suspended} ? '정지' : '정상'">정상</span></td>
+                <td th:text="${@fmt.dateTime(m.created)}">-</td>
+                <td class="oa-actions" th:if="${m.id != me.id}">
+                    <form th:action="@{/admin/members/{id}/suspend(id=${m.id})}" method="post">
+                        <input type="hidden" name="back" th:value="@{/admin/members(q=${q},page=${page.number})}">
+                        <button type="submit" class="oa-btn oa-btn-sm" th:classappend="${m.suspended} ? 'oa-btn-line' : 'oa-btn-danger'"
+                                th:text="${m.suspended} ? '정지 해제' : '이용 정지'" th:disabled="${m.admin and !m.suspended}">이용 정지</button>
+                    </form>
+                    <form th:action="@{/admin/members/{id}/role(id=${m.id})}" method="post">
+                        <input type="hidden" name="back" th:value="@{/admin/members(q=${q},page=${page.number})}">
+                        <button type="submit" class="oa-btn oa-btn-line oa-btn-sm" th:text="${m.admin} ? '관리자 해제' : '관리자 지정'" th:disabled="${m.suspended}">관리자 지정</button>
+                    </form>
+                </td>
+                <td th:if="${m.id == me.id}" class="oa-sub">본인</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        <nav th:replace="~{admin/fragments :: pager('/admin/members')}"></nav>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

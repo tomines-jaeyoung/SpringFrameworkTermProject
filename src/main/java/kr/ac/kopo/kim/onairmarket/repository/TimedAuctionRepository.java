@@ -30,6 +30,18 @@ public interface TimedAuctionRepository extends JpaRepository<TimedAuction, Stri
 
     List<TimedAuction> findByOwnerIdAndArchivedFalseOrderByCreatedDesc(Long ownerId);
 
+    /** 관리자: 보관된 경매까지 포함해 제목·판매자 검색 */
+    @Query("""
+            select a from TimedAuction a
+            where :keyword is null or lower(a.title) like lower(concat('%', :keyword, '%'))
+               or lower(a.seller) like lower(concat('%', :keyword, '%'))
+            """)
+    Page<TimedAuction> adminSearch(@Param("keyword") String keyword, Pageable pageable);
+
+    long countByArchivedTrue();
+
+    long countByArchivedFalseAndStartsAtLessThanEqualAndEndsAtGreaterThan(long startedBy, long endsAfter);
+
     /** 홈 '곧 낙찰됩니다': 진행 중인 경매를 마감이 가까운 순으로 4개 */
     List<TimedAuction> findTop4ByArchivedFalseAndStartsAtLessThanEqualAndEndsAtGreaterThanOrderByEndsAtAsc(long startedBy, long endsAfter);
 

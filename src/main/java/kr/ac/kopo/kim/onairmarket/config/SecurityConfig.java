@@ -2,6 +2,7 @@ package kr.ac.kopo.kim.onairmarket.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * 로그인: members 테이블(MemberService.loadUserByUsername)로 아이디·비밀번호를 확인한다.
  * 목록·상세·영상 보기는 누구나, 판매 등록·입찰·관심 저장·내 정보는 로그인 후에만 가능하다.
+ * 관리자 화면(/admin/**)은 role 이 ADMIN 인 회원만, 이용 정지된 회원은 로그인할 수 없다.
  */
 @Configuration
 @EnableWebSecurity
@@ -27,6 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/home", "/auctions/*", "/products/*", "/api/media/**", "/login", "/signup",
                                 "/css/**", "/js/**", "/sample/**", "/media/**", "/favicon.ico", "/favicon.svg", "/error").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -34,7 +37,8 @@ public class SecurityConfig {
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .defaultSuccessUrl("/home", false)
-                        .failureUrl("/login?error")
+                        .failureHandler((request, response, ex) -> response.sendRedirect(request.getContextPath()
+                                + (ex instanceof DisabledException ? "/login?suspended" : "/login?error")))
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

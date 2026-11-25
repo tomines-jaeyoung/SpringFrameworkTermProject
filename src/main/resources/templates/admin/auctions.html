@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('경매 관리')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <div th:replace="~{admin/fragments :: top('경매 관리', 'timed_auctions 테이블 · 숨긴 경매는 목록·상세에서 빠지고 입찰이 막히며, 데이터는 지우지 않습니다')}"></div>
+    <section class="oa-panel">
+        <form th:replace="~{admin/fragments :: search('/admin/auctions', '상품명 또는 판매자')}"></form>
+        <p class="oa-sub" th:text="'전체 ' + ${page.totalElements} + '개 (숨긴 경매 포함)'">전체 0개</p>
+        <div class="oa-table-wrap">
+        <table class="oa-table">
+            <thead><tr><th>상품</th><th>판매자</th><th>현재가</th><th>입찰</th><th>상태</th><th>마감</th><th>관리</th></tr></thead>
+            <tbody>
+            <tr th:each="a : ${page.content}" th:classappend="${a.archived} ? 'oa-row-muted'">
+                <td><a th:href="@{/admin/auctions/{id}(id=${a.id})}" th:text="${a.title}">상품</a></td>
+                <td th:text="${a.seller}">판매자</td>
+                <td th:text="${@fmt.won(a.price)}">0원</td>
+                <td th:text="${a.bidCount} + '건'">0건</td>
+                <td><span class="oa-tag" th:classappend="${a.archived} ? 'oa-tag-red'" th:text="${a.status(@fmt.now())}">진행 중</span></td>
+                <td th:text="${@fmt.dateTime(a.endsAt)}">-</td>
+                <td class="oa-actions">
+                    <form th:action="@{/admin/auctions/{id}/archive(id=${a.id})}" method="post">
+                        <input type="hidden" name="back" th:value="@{/admin/auctions(q=${q},page=${page.number})}">
+                        <button type="submit" class="oa-btn oa-btn-sm" th:classappend="${a.archived} ? 'oa-btn-line' : 'oa-btn-danger'"
+                                th:text="${a.archived} ? '다시 공개' : '숨기기'">숨기기</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        <nav th:replace="~{admin/fragments :: pager('/admin/auctions')}"></nav>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

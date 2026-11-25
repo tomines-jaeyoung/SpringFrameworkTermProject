@@ -14,6 +14,7 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 | 홈 (영상 경매 · 곧 낙찰 · 사진 경매 · 즉시 구매) | http://192.168.26.135:8081/home |
 | 즉시 구매 목록 | http://192.168.26.135:8081/home?view=products |
 | 회원가입 · 로그인 | http://192.168.26.135:8081/signup · http://192.168.26.135:8081/login |
+| 관리자 화면 (admin / admin1234) | http://192.168.26.135:8081/admin |
 
 ## 실행 방법 (IntelliJ)
 
@@ -24,10 +25,24 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
    - 테이블은 JPA 엔티티로 자동 생성됩니다 (`spring.jpa.hibernate.ddl-auto=update`). 별도 SQL 파일이 필요 없습니다.
    - 처음 실행할 때 체험용 회원 2명, 샘플 경매 12개(영상 경매·시작 예정·종료 예시 포함), 즉시 구매 상품 5개가 자동으로 들어갑니다.
 
-| 체험 계정 | 아이디 | 비밀번호 |
+| 계정 | 아이디 | 비밀번호 |
 |---|---|---|
+| **관리자** (`/admin`) | `admin` | `admin1234` |
 | 판매자 (온에어셀렉트) | `onair_seller` | `onair1234` |
 | 구매자 (수집가민지) | `onair_buyer` | `onair1234` |
+
+- 관리자 계정은 실행할 때 없으면 자동으로 만들어집니다 (이미 쓰던 DB에도 한 번만 추가). 일반 회원가입으로는 관리자가 될 수 없습니다.
+
+### DB 직접 확인하기 (MySQL)
+
+| 항목 | 값 |
+|---|---|
+| Host / Port | `localhost` / `3306` |
+| User / Password | `root` / `1234` |
+| Database | `onairmarket` |
+
+IntelliJ 오른쪽 **Database** 창 → **＋ → Data Source → MySQL** → 위 값 입력 → (처음이면 드라이버 다운로드) → Test Connection → OK.
+`onairmarket → tables`에서 테이블 7개를 볼 수 있고, 회원가입·관리자 작업 후 새로고침하면 `members`·`admin_audit` 행이 바뀌는 것을 확인할 수 있습니다.
 
 업로드한 파일은 프로젝트 폴더의 `uploads/` 아래에 저장됩니다 (git에는 올리지 않음).
 
@@ -53,17 +68,27 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 | F-07 관심 저장 | 저장/해제, 복합 기본 키로 중복 방지 | `AuctionService.toggleBookmark` |
 | F-08 즉시 구매 | 즉시 판매 등록(/sell/product), 목록(/home?view=products), 상세, 구매 — 판매 중일 때 먼저 누른 1명만 판매 완료(조건부 UPDATE), 본인 상품 구매 불가, 내 정보에 판매·구매 기록 | `ProductService`, `ProductRepository.markSold` |
 | F-06 내 정보 | 내 경매 목록, 관심 경매, 내 즉시 판매 상품, 구매한 상품, 내 입찰 기록 | `MyPageController` |
+| F-09 관리 | 관리자 전용 화면(`/admin`): 대시보드(테이블별 현황), 회원 검색·이용 정지/해제·관리자 지정/해제, 경매 숨기기/다시 공개·입찰 기록, 즉시 구매 상품 삭제(판매 중만), 관리 이력. 모든 작업은 `admin_audit`에 기록 | `AdminController`, `AdminService`, `MemberStateInterceptor`, `SecurityConfig` |
 
-## DB 테이블 (JPA 엔티티 6개)
+### 관리자 기능 동작 규칙
+
+- `/admin/**`는 role이 `ADMIN`인 회원만 들어갈 수 있습니다 (비로그인 → 로그인 화면, 일반 회원 → 403).
+- 이용 정지된 회원은 로그인이 거부되고(`/login?suspended`), 로그인 중이었다면 다음 요청에서 바로 로그아웃됩니다.
+- 관리자 권한이 해제되면 같은 세션이라도 `/admin`이 바로 막힙니다 (요청마다 DB의 회원 상태를 다시 확인).
+- 본인 계정 정지·권한 변경, 관리자 계정 정지, 판매 완료 상품 삭제는 서버에서 거부합니다.
+- 숨긴 경매는 목록·상세·입찰에서 빠지지만 데이터는 남습니다. 상품 삭제는 `DELETE … WHERE status = 'selling'` 조건으로 그 사이 판매된 상품은 지우지 않습니다.
+
+## DB 테이블 (JPA 엔티티 7개)
 
 | 테이블 | 엔티티 | 주요 조건 |
 |---|---|---|
-| `members` | `Member` | username UNIQUE, 비밀번호 BCrypt |
+| `members` | `Member` | username UNIQUE, 비밀번호 BCrypt, role(USER/ADMIN), suspended(이용 정지) |
 | `timed_auctions` | `TimedAuction` | 가격 원화 정수, 시각 밀리초, revision |
 | `timed_bids` | `TimedBid` | UNIQUE (auction_id, revision) |
 | `auction_media` | `AuctionMedia` | status pending/ready |
 | `bookmarks` | `Bookmark` | 복합 기본 키 (user_id, auction_id) |
 | `products` | `Product` | status selling/sold, 구매자(buyer_id) 기록, 조건부 UPDATE로 1명만 구매 |
+| `admin_audit` | `AdminAudit` | 관리자 작업 이력 (actor_id, action, target, detail, created) |
 
 설계 보고서처럼 SQL 외래 키 제약은 만들지 않고(`ConstraintMode.NO_CONSTRAINT`), 참조 대상·소유권은 서비스에서 검사합니다.
 
@@ -71,7 +96,7 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 
 - **members 테이블 추가**: 보고서는 호스팅 계정 인증(로컬 users 테이블 없음) 기준이지만, 과제 조건(회원가입·로그인 DB 연동)에 맞춰 회원 테이블을 추가했습니다.
 - **저장소**: Cloudflare D1 → MySQL, R2 → 로컬 `uploads/` 폴더.
-- **구현 범위**: 관리자(admin_audit·seller_status)와 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
+- **관리자**: 원 설계의 허용 목록 대신 `members.role`(ADMIN)로 권한을 구분하고, `admin_audit`은 원 설계 구성 그대로 구현했습니다. 판매자 상태(seller_status)와 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
 - **즉시 구매**: 원 설계의 고정가 상품·예약(fixed_products·demo_orders, 재고·15분 예약)은 중고 거래형 `products` 한 테이블로 단순화했습니다. 상품 1개를 먼저 구매한 한 명에게 판매 완료합니다.
 - 결제·정산은 없습니다 (체험 경매).
 

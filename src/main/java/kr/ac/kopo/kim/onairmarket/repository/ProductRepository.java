@@ -30,6 +30,21 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     List<Product> findByOwnerIdOrderByCreatedDesc(Long ownerId);
 
+    /** 관리자: 상품명·판매자 검색 */
+    @Query("""
+            select p from Product p
+            where :keyword is null or lower(p.title) like lower(concat('%', :keyword, '%'))
+               or lower(p.seller) like lower(concat('%', :keyword, '%'))
+            """)
+    Page<Product> adminSearch(@Param("keyword") String keyword, Pageable pageable);
+
+    long countByStatus(String status);
+
+    /** 관리자 삭제: 판매 중인 상품만 지운다 (판매 완료된 거래 기록은 남긴다). 동시에 구매되면 0 */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Product p where p.id = :id and p.status = 'selling'")
+    int deleteIfSelling(@Param("id") String id);
+
     List<Product> findByBuyerIdOrderBySoldAtDesc(Long buyerId);
 
     /**

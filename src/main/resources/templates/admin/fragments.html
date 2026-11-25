@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+<!-- 관리자 공통: 제목 + 탭 -->
+<div th:fragment="top(title, sub)">
+    <p class="oa-eyebrow">ADMIN · 관리자 전용</p>
+    <h1 class="oa-page-title" th:text="${title}">관리자</h1>
+    <p class="oa-sub" th:text="${sub}">설명</p>
+    <nav class="oa-admin-tabs" aria-label="관리 메뉴">
+        <a th:href="@{/admin}" th:classappend="${tab == 'dashboard'} ? 'on'">대시보드</a>
+        <a th:href="@{/admin/members}" th:classappend="${tab == 'members'} ? 'on'">회원</a>
+        <a th:href="@{/admin/auctions}" th:classappend="${tab == 'auctions'} ? 'on'">경매</a>
+        <a th:href="@{/admin/products}" th:classappend="${tab == 'products'} ? 'on'">즉시 구매 상품</a>
+        <a th:href="@{/admin/audit}" th:classappend="${tab == 'audit'} ? 'on'">관리 이력</a>
+    </nav>
+    <div th:replace="~{fragments/layout :: flash}"></div>
+</div>
+
+<!-- 검색 -->
+<form th:fragment="search(action, placeholder)" class="oa-admin-search" th:action="@{${action}}" method="get">
+    <input type="search" name="q" th:value="${q}" th:placeholder="${placeholder}" aria-label="검색">
+    <button type="submit" class="oa-btn oa-btn-line oa-btn-sm">검색</button>
+    <a th:if="${q != null and !#strings.isEmpty(q)}" th:href="@{${action}}" class="oa-sub">검색 지우기</a>
+</form>
+
+<!-- 페이지 이동 -->
+<nav th:fragment="pager(base)" class="oa-pager" th:if="${page.totalPages > 1}">
+    <a th:if="${page.hasPrevious()}" th:href="@{${base}(q=${q},page=${page.number - 1})}">← 이전</a>
+    <span th:text="${page.number + 1} + ' / ' + ${page.totalPages}">1 / 1</span>
+    <a th:if="${page.hasNext()}" th:href="@{${base}(q=${q},page=${page.number + 1})}">다음 →</a>
+</nav>
+</body>
+</html>

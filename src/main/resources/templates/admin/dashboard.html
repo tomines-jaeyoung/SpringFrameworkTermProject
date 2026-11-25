@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('관리자 대시보드')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <div th:replace="~{admin/fragments :: top('관리자 대시보드', 'DB에 저장된 회원·경매·입찰·즉시 구매 현황과 최근 관리 이력')}"></div>
+
+    <section class="oa-stats">
+        <a class="oa-stat" th:href="@{/admin/members}"><small>회원 (members)</small><strong th:text="${stats.members}">0</strong><span th:text="'정지 ' + ${stats.suspended} + '명'">정지 0명</span></a>
+        <a class="oa-stat" th:href="@{/admin/auctions}"><small>경매 (timed_auctions)</small><strong th:text="${stats.auctions}">0</strong><span th:text="'진행 중 ' + ${stats.openAuctions} + ' · 숨김 ' + ${stats.archived}">-</span></a>
+        <div class="oa-stat"><small>입찰 (timed_bids)</small><strong th:text="${stats.bids}">0</strong><span th:text="'관심 저장 ' + ${stats.bookmarks} + '건'">-</span></div>
+        <a class="oa-stat" th:href="@{/admin/products}"><small>즉시 구매 (products)</small><strong th:text="${stats.selling + stats.sold}">0</strong><span th:text="'판매 중 ' + ${stats.selling} + ' · 판매 완료 ' + ${stats.sold}">-</span></a>
+        <a class="oa-stat" th:href="@{/admin/audit}"><small>관리 이력 (admin_audit)</small><strong th:text="${stats.audits}">0</strong><span>관리자 작업 기록</span></a>
+    </section>
+
+    <section class="oa-block-section oa-panel">
+        <h2>최근 관리 이력</h2>
+        <div class="oa-table-wrap" th:if="${!#lists.isEmpty(audits)}">
+        <table class="oa-table">
+            <thead><tr><th>시각</th><th>관리자</th><th>작업</th><th>대상</th></tr></thead>
+            <tbody>
+            <tr th:each="l : ${audits}">
+                <td th:text="${@fmt.dateTime(l.created)}">-</td>
+                <td th:text="${l.actorName}">admin</td>
+                <td><span class="oa-tag" th:text="${l.actionLabel()}">작업</span></td>
+                <td th:text="${l.detail}">대상</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        <p th:if="${#lists.isEmpty(audits)}" class="oa-sub">아직 관리 이력이 없습니다.</p>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

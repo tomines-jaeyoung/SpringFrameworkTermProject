@@ -20,6 +20,7 @@ import java.util.UUID;
 
 /**
  * 처음 실행할 때(회원이 한 명도 없을 때)만 체험용 회원 2명과 샘플 경매·즉시 구매 상품을 넣는다.
+ * 관리자 계정(admin)은 없으면 항상 만든다.
  * 사진·영상은 기존 온에어마켓 public/media 에서 복사한 파일(/sample/...)을 사용한다.
  * 체험 계정 아이디·비밀번호는 README.md 에 적어 두었다.
  */
@@ -37,6 +38,19 @@ public class SampleDataLoader implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        seed();
+        ensureAdmin();
+    }
+
+    /** 관리자 계정(admin / admin1234)이 없으면 만든다. 이미 운영 중인 DB에도 한 번만 추가된다. */
+    private void ensureAdmin() {
+        if (memberRepository.existsByUsername("admin")) return;
+        Member admin = new Member("admin", passwordEncoder.encode("admin1234"), "관리자");
+        admin.setRole("ADMIN");
+        memberRepository.save(admin);
+    }
+
+    private void seed() {
         if (memberRepository.count() > 0) {
             // 이미 회원이 있는 DB(이전 버전으로 실행한 DB)에는 즉시 구매 샘플만 없으면 넣는다
             if (productRepository.count() == 0) {

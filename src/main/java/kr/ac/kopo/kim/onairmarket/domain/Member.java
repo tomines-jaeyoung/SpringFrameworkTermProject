@@ -30,7 +30,10 @@ public class Member {
     private String name;              // 화면 표시 이름 (판매자·입찰자명)
 
     @Column(nullable = false, length = 20)
-    private String role = "USER";
+    private String role = "USER";     // USER 또는 ADMIN
+
+    @Column(nullable = false)
+    private boolean suspended = false; // 관리자가 이용 정지한 회원은 로그인할 수 없다
 
     @Column(nullable = false)
     private Long created;             // 밀리초 타임스탬프
@@ -40,5 +43,9 @@ public class Member {
         this.password = encodedPassword;
         this.name = name;
         this.created = System.currentTimeMillis();
+    }
+
+    public boolean isAdmin() {
+        return "ADMIN".equals(role);
     }
 }

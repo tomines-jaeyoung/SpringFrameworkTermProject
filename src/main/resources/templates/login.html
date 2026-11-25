@@ -8,6 +8,7 @@
         <h1>로그인</h1>
         <div th:replace="~{fragments/layout :: flash}"></div>
         <p class="oa-flash oa-flash-err" th:if="${param.error}" role="alert">아이디 또는 비밀번호가 올바르지 않습니다.</p>
+        <p class="oa-flash oa-flash-err" th:if="${param.suspended}" role="alert">관리자에 의해 이용이 정지된 계정입니다.</p>
         <form th:action="@{/login}" method="post" class="oa-form">
             <label>아이디
                 <input type="text" name="username" th:value="${joinedUsername}" autocomplete="username" required maxlength="20">

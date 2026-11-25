@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('즉시 구매 상품 관리')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+<main class="oa-main">
+    <div th:replace="~{admin/fragments :: top('즉시 구매 상품 관리', 'products 테이블 · 판매 중인 상품만 삭제할 수 있고, 판매 완료된 거래 기록은 남깁니다')}"></div>
+    <section class="oa-panel">
+        <form th:replace="~{admin/fragments :: search('/admin/products', '상품명 또는 판매자')}"></form>
+        <p class="oa-sub" th:text="'전체 ' + ${page.totalElements} + '개'">전체 0개</p>
+        <div class="oa-table-wrap">
+        <table class="oa-table">
+            <thead><tr><th>상품</th><th>판매자</th><th>가격</th><th>상태</th><th>구매자</th><th>등록</th><th>관리</th></tr></thead>
+            <tbody>
+            <tr th:each="p : ${page.content}">
+                <td><a th:href="@{/products/{id}(id=${p.id})}" th:text="${p.title}">상품</a></td>
+                <td th:text="${p.seller}">판매자</td>
+                <td th:text="${@fmt.won(p.price)}">0원</td>
+                <td><span class="oa-tag" th:classappend="${p.sold} ? 'oa-tag-dark' : 'oa-tag-green'" th:text="${p.statusLabel()}">판매 중</span></td>
+                <td th:text="${p.buyerName != null ? p.buyerName : '-'}">-</td>
+                <td th:text="${@fmt.dateTime(p.created)}">-</td>
+                <td class="oa-actions">
+                    <form th:if="${!p.sold}" th:action="@{/admin/products/{id}/delete(id=${p.id})}" method="post">
+                        <input type="hidden" name="back" th:value="@{/admin/products(q=${q},page=${page.number})}">
+                        <button type="submit" class="oa-btn oa-btn-danger oa-btn-sm">삭제</button>
+                    </form>
+                    <span th:if="${p.sold}" class="oa-sub">거래 기록 보존</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        <nav th:replace="~{admin/fragments :: pager('/admin/products')}"></nav>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

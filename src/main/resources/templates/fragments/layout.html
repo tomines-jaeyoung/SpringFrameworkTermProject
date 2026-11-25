@@ -24,6 +24,7 @@
                 <a class="oa-btn oa-btn-line" th:href="@{/signup}">회원가입</a>
             </th:block>
             <th:block th:if="${me != null}">
+                <a class="oa-link oa-admin-link" th:if="${me.admin}" th:href="@{/admin}">관리자 화면</a>
                 <a class="oa-link" th:href="@{/my}"><strong th:text="${me.name}">이름</strong>님</a>
                 <form th:action="@{/logout}" method="post" class="oa-inline">
                     <button type="submit" class="oa-link-btn">로그아웃</button>
