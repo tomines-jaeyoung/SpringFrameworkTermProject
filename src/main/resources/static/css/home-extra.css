@@ -22,7 +22,7 @@
 .oa-soon-toast[hidden] { display: none; }
 [data-href] { cursor: pointer; }
 
-/* 원래 CSS는 안내 문구를 ':after'로 덮어쓰므로, Spring 버전 안내(라이브 준비 중)가 보이게 되돌림 */
+/* 원래 CSS는 안내 문구를 ':after'로 덮어쓰므로, Spring 버전 안내 문구가 보이게 되돌림 */
 .oa-v2 .lv-v10.rf-page .lv-demo-disclosure > span { font-size: 9px; }
 .oa-v2 .lv-v10.rf-page .lv-demo-disclosure > span:after { content: none; }
 

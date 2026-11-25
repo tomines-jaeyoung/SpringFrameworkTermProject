@@ -118,7 +118,6 @@ small { color: var(--oa-muted); font-weight: 400; font-size: .8em; margin-left: 
 .oa-sell-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
 .oa-sell-option { border: 1px solid var(--oa-border); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 6px; }
 .oa-sell-option small { color: var(--oa-muted); }
-.oa-sell-options-3 { grid-template-columns: repeat(3, 1fr); }
 .oa-badge-sold { background: #e8e9eb; color: #555; }
 .oa-sell-video { border-color: var(--oa-coral); background: var(--oa-pale); }
 .oa-sell-video:hover { box-shadow: 0 6px 20px rgba(245, 112, 87, .18); }

@@ -23,7 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 
-/** 판매하기: 판매 방식 선택 → 사진·동영상 기간 경매 등록 또는 즉시 판매 상품 등록 (라이브 경매는 보류) */
+/** 판매하기: 판매 방식 선택 → 사진·동영상 기간 경매 등록 또는 즉시 판매 상품 등록 */
 @Controller
 @RequiredArgsConstructor
 public class SellController {

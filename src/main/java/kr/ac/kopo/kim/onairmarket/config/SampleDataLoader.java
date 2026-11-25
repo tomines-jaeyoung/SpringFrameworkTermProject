@@ -98,7 +98,7 @@ public class SampleDataLoader implements ApplicationRunner {
         seedProducts(seller, buyer, now);
     }
 
-    /** 즉시 구매 샘플 (원래 온에어마켓 '방송 없이 바로 구매' 예시 상품) */
+    /** 즉시 구매 샘플 (중고 거래처럼 정해진 가격으로 바로 사는 예시 상품) */
     private void seedProducts(Member seller, Member buyer, long now) {
         product(seller, "나이키 에어 조던 1 시카고 (2015, 중고)", "sneakers", "hd-product-sneakers", 1_590_000, now - 3 * HOUR,
                 "2015년 발매 시카고 컬러입니다. 착용감 있으나 갑피 상태가 좋습니다. 박스 포함.");

@@ -2,7 +2,7 @@
 
 상품 소개 사진·동영상을 올리고, 정해진 기간 동안 입찰받는 경매 웹 서비스입니다.
 프레임워크 실습 기말 과제로, 온에어마켓 설계 보고서의 **사진·동영상 기간 경매**와 **회원가입·로그인**을
-Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으로 바로 사는 **즉시 구매**도 함께 구현했습니다. (라이브 경매는 보류)
+Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으로 바로 사는 **즉시 구매**도 함께 구현했습니다.
 
 ## ▶ 바로 실행해 보기
 
@@ -47,12 +47,12 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 |---|---|---|
 | F-01 계정 인증 | 회원가입·로그인·로그아웃 (DB 연동) | `AuthController`, `MemberService`, `SecurityConfig` |
 | F-02 목록 탐색 | 홈 섹션(영상으로 만나는 경매·곧 낙찰·사진 경매·즉시 구매·곧 시작하는 경매), 둘러보기: 카테고리·검색·정렬(최신/마감 임박/입찰 많은 순/현재가)·진행 중·동영상만 필터 | `HomeController`, `TimedAuctionRepository.search` |
-| F-03 판매 방식 선택·등록 | 판매하기 → 방식 선택(사진·동영상 경매 / 즉시 판매 / 라이브는 보류) → 등록 (경매: 즉시 시작/시작 예약, 7·30·90일/직접 지정) | `SellController`, `AuctionService.create`, `ProductService.create` |
+| F-03 판매 방식 선택·등록 | 판매하기 → 방식 선택(사진·동영상 경매 / 즉시 판매) → 등록 (경매: 즉시 시작/시작 예약, 7·30·90일/직접 지정) | `SellController`, `AuctionService.create`, `ProductService.create` |
 | F-04 파일 업로드 | 사진 8MB(JPG·PNG·WebP), 영상 50MB(MP4·WebM), 파일 앞부분으로 형식 확인, pending → ready, 실패 시 정리, 업로드 진행률 | `MediaService`, `onair.js` |
 | F-05 입찰 | 현재가 + 1,000원만 허용, revision 조건부 갱신, 동시 입찰 시 한 건만 성공, 본인 경매·기간 외 입찰 차단 | `AuctionService.bid`, `TimedAuctionRepository.applyBid` |
 | F-07 관심 저장 | 저장/해제, 복합 기본 키로 중복 방지 | `AuctionService.toggleBookmark` |
 | F-08 즉시 구매 | 즉시 판매 등록(/sell/product), 목록(/home?view=products), 상세, 구매 — 판매 중일 때 먼저 누른 1명만 판매 완료(조건부 UPDATE), 본인 상품 구매 불가, 내 정보에 판매·구매 기록 | `ProductService`, `ProductRepository.markSold` |
-| 내 정보 | 내 경매 목록, 관심 경매, 내 즉시 판매 상품, 구매한 상품, 내 입찰 기록 | `MyPageController` |
+| F-06 내 정보 | 내 경매 목록, 관심 경매, 내 즉시 판매 상품, 구매한 상품, 내 입찰 기록 | `MyPageController` |
 
 ## DB 테이블 (JPA 엔티티 6개)
 
@@ -71,7 +71,7 @@ Spring Boot + JPA로 구현했습니다. 중고 거래처럼 정해진 가격으
 
 - **members 테이블 추가**: 보고서는 호스팅 계정 인증(로컬 users 테이블 없음) 기준이지만, 과제 조건(회원가입·로그인 DB 연동)에 맞춰 회원 테이블을 추가했습니다.
 - **저장소**: Cloudflare D1 → MySQL, R2 → 로컬 `uploads/` 폴더.
-- **구현 범위**: 라이브 경매(auctions·bids·messages·room_presence)는 보류, 관리자(admin_audit·seller_status)와 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
+- **구현 범위**: 관리자(admin_audit·seller_status)와 요청 간격 제한(request_gates)은 이번 과제 범위에서 제외했습니다.
 - **즉시 구매**: 원 설계의 고정가 상품·예약(fixed_products·demo_orders, 재고·15분 예약)은 중고 거래형 `products` 한 테이블로 단순화했습니다. 상품 1개를 먼저 구매한 한 명에게 판매 완료합니다.
 - 결제·정산은 없습니다 (체험 경매).
 
